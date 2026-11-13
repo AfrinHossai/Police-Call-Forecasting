@@ -1,71 +1,460 @@
-## Predicting Next-Hour San José Police Call Volume
+# Police Call Forecasting
 
-This CS 171 machine-learning project predicts the number of San José police calls expected during the next hour. The workflow converts incident-level police-call records into hourly observations, creates leakage-safe time-series features, trains several regression models, and compares their performance on a held-out chronological test period.
+### Next-Hour Police Call Volume Prediction Using Machine Learning
+
+**CS 171 Machine Learning Project | San José State University**
 
 ## Project Overview
 
-- **Task:** Regression
-- **Target:** `NEXT_HOUR_CALLS`
-- **Data:** City of San José Police Calls for Service for 2024, 2025, and partial 2026
-- **Final hourly dataset:** 21,236 rows
-- **Predictors:** 48 numerical features
-- **Models:** Mean baseline, persistence baseline, linear regression, Elastic Net, decision tree, random forest, MLP, and LSTM
-- **Primary metrics:** MAE, RMSE, and R²
-- **Current best test model:** Tuned random forest
+This project develops and evaluates machine learning models for predicting the number of police calls for service expected in San José during the next hour.
+
+Using publicly available police call records from the City of San José, the project transforms incident-level data into hourly observations, engineers historical and temporal features, and compares traditional machine learning and neural network models.
+
+The forecasting pipeline uses chronological training, validation, and test splits to evaluate predictive performance while reducing the risk of temporal data leakage.
+
+The project emphasizes predictive modeling, time-series feature engineering, model comparison, and reproducible evaluation.
+
+## Project Highlights
+
+- **Prediction task:** Next-hour police call volume forecasting
+- **Problem type:** Supervised regression
+- **Data source:** City of San José Police Calls for Service
+- **Data coverage:** 2024, 2025, and partial 2026
+- **Hourly observations:** 21,236
+- **Numerical predictors:** 48
+- **Models evaluated:** Eight modeling approaches, including baselines
+- **Evaluation metrics:** MAE, RMSE, and R²
+- **Best reported model:** Tuned Random Forest
+
+### Best Reported Test Performance
+
+| Metric | Result |
+|---|---:|
+| Mean Absolute Error (MAE) | 5.616 calls |
+| Root Mean Squared Error (RMSE) | 8.142 calls |
+| R² Score | 0.711 |
+
+These results are from the project's documented held-out test evaluation. They may vary slightly if the data, code, saved models, or software environment changes.
+
+## Technologies Used
+
+**Programming Language**
+- Python
+
+**Data Processing and Analysis**
+- Pandas
+- NumPy
+
+**Machine Learning**
+- Scikit-learn
+- Linear Regression
+- Elastic Net
+- Decision Tree
+- Random Forest
+
+**Deep Learning**
+- TensorFlow / Keras
+- Multilayer Perceptron (MLP)
+- Long Short-Term Memory (LSTM)
+
+**Visualization**
+- Matplotlib
+- Seaborn
+- Great Tables
+
+**Development Environment**
+- Google Colab
+- Google Drive
+- Jupyter Notebooks
+- Git and GitHub
+
+## Machine Learning Models
+
+The project compares eight forecasting approaches.
+
+| Model | Purpose |
+|---|---|
+| Mean Baseline | Predicts using the training-set mean |
+| Persistence Baseline | Uses recent observed call volume |
+| Linear Regression | Establishes a linear predictive model |
+| Elastic Net | Applies regularization to linear regression |
+| Decision Tree | Learns nonlinear decision rules |
+| Random Forest | Combines multiple decision trees |
+| MLP | Models nonlinear feature relationships |
+| LSTM | Learns from sequences of historical observations |
+
+Hyperparameters and LSTM lookback windows are selected using validation data.
+
+The held-out test set is used for final evaluation rather than hyperparameter selection.
+
+## Dataset
+
+### Data Source
+
+The project uses publicly available **Police Calls for Service** records from the City of San José Open Data Portal.
+
+**Source:** [City of San José Police Calls for Service](https://data.sanjoseca.gov/dataset/police-calls-for-service)
+
+### Data Coverage
+
+The source data includes:
+
+- 2024 police call records
+- 2025 police call records
+- Partial 2026 police call records
+
+The source records contain fields such as:
+
+- `OFFENSE_DATE`
+- `OFFENSE_TIME`
+- `PRIORITY`
+- `CALL_TYPE`
+
+### Data Preparation
+
+The project:
+
+1. Loads and combines yearly incident records.
+2. Removes exact duplicate records.
+3. Constructs timestamps from date and time information.
+4. Sorts records chronologically.
+5. Aggregates incidents into hourly call counts.
+6. Creates the next-hour forecasting target.
+7. Engineers calendar, lag, rolling-average, priority, and call-type features.
+8. Assigns chronological training, validation, and test periods.
+9. Removes observations without complete required historical features.
+
+### Prediction Target
+
+`NEXT_HOUR_CALLS`
+
+This variable represents the number of police calls expected during the following hour.
+
+The final model-ready dataset contains 21,236 hourly observations and 48 numerical predictors.
+
+**Note:** Raw source CSV files are not included in the GitHub repository because of their size.
 
 ## Repository Structure
 
 ```text
-cs171-police-call-forecasting/
-├── data/
-│   └── README.md
-├── figures/
+Police-Call-Forecasting/
+│
 ├── notebooks/
 │   ├── 01_data_preparation.ipynb
 │   ├── 02_eda.ipynb
 │   ├── 03_preprocessing_and_split.ipynb
 │   ├── 04_baseline_and_tree_models.ipynb
 │   ├── 05_neural_networks.ipynb
-│   └── 06_model_evaluation.ipynb
-├── paper/
+│   ├── 06_model_evaluation.ipynb
+│   └── README.md
+│
+├── models/
+│   ├── LinearRegression/
+│   ├── ElasticNet (Regularization)/
+│   ├── DecisionTree/
+│   ├── RandomForest/
+│   ├── MLP/
+│   └── LSTM/
+│
+├── figures/
+│   └── README.md
+│
 ├── results/
-├── src/
+│   ├── Baseline + Simple Model Results/
+│   ├── split_assignments.csv
+│   ├── split_procedure.json
+│   ├── split_summary.csv
+│   ├── target_distribution_by_split.csv
+│   └── README.md
+│
+├── Results_Graphs/
+│   ├── master_model_comparison.csv
+│   ├── master_model_forecast_comparison.png
+│   ├── rf_feature_importance.png
+│   └── lstm_lookback_comparison.png
+│
 ├── requirements.txt
+├── .gitignore
 └── README.md
 ```
 
-The raw CSV files are not stored in this repository because of their size.
+The repository also includes trained model artifacts, diagnostic figures, prediction files, and additional evaluation outputs within the corresponding directories.
 
-## Recommended Environment
+## Project Workflow
 
-The notebooks were developed in **Google Colab** and save files to Google Drive. A GPU runtime is recommended for Notebook 05 because it trains MLP and LSTM models.
+The machine learning workflow is organized into six notebooks.
 
-### Python packages
+### Notebook 01 — Data Preparation
+
+**File:** `notebooks/01_data_preparation.ipynb`
+
+This notebook:
+
+- Loads and combines yearly police call records.
+- Removes duplicate records.
+- Creates timestamps.
+- Aggregates incidents into hourly observations.
+- Constructs the next-hour prediction target.
+- Engineers historical and temporal features.
+- Assigns chronological dataset splits.
+
+Important generated files include:
 
 ```text
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-joblib
-tensorflow
-great-tables
+model_ready_hourly.csv
+candidate_features.json
+final_split_audit.csv
 ```
 
-In Google Colab, most packages are already installed. Install `great-tables` if needed:
+### Notebook 02 — Exploratory Data Analysis
+
+**File:** `notebooks/02_eda.ipynb`
+
+Explores:
+
+- Distribution of hourly police call counts
+- Hour-of-day patterns
+- Day-of-week patterns
+- Monthly and yearly patterns
+- Priority distributions
+- Call-type distributions
+- Feature correlations
+- High-volume and extreme-demand periods
+- Distribution changes across dataset splits
+
+The exploratory visualizations are saved in the `figures/` directory.
+
+### Notebook 03 — Preprocessing and Split Export
+
+**File:** `notebooks/03_preprocessing_and_split.ipynb`
+
+This notebook:
+
+- Uses the chronological dataset splits.
+- Separates predictors from the target.
+- Fits median imputation using the training set.
+- Fits standardization using the training set.
+- Applies the fitted preprocessing pipeline to validation and test data.
+- Saves scaled and unscaled dataset versions.
+- Preserves the ordered feature list.
+
+Important generated files include:
+
+```text
+train_scaled.csv
+validation_scaled.csv
+test_scaled.csv
+
+train_unscaled.csv
+validation_unscaled.csv
+test_unscaled.csv
+
+numerical_preprocessor.joblib
+preprocessing_metadata.json
+candidate_features.json
+```
+
+### Notebook 04 — Baselines and Traditional Machine Learning
+
+**File:** `notebooks/04_baseline_and_tree_models.ipynb`
+
+Trains and evaluates:
+
+- Mean Baseline
+- Persistence Baseline
+- Linear Regression
+- Elastic Net
+- Decision Tree
+- Random Forest
+
+Hyperparameters are selected using validation performance.
+
+Saved models include:
+
+```text
+models/LinearRegression/linear_regression.joblib
+models/ElasticNet (Regularization)/elastic_net.joblib
+models/DecisionTree/decision_tree_.joblib
+models/RandomForest/random_forest.joblib
+```
+
+The test set should not be used for model tuning.
+
+### Notebook 05 — Neural Network Models
+
+**File:** `notebooks/05_neural_networks.ipynb`
+
+This notebook trains:
+
+- MLP with 100 epochs
+- MLP with early stopping
+- LSTM models with lookback windows of 2, 4, 6, 12, 24, and 48 hours
+
+The LSTM lookback window is selected using validation performance.
+
+The documented selected value is:
 
 ```python
-!pip install -q great-tables
+best_ts = 6
 ```
 
-## 1. Download and Name the Raw Data
+Saved neural network models include:
 
-Download the yearly **Police Calls for Service** CSV files from the City of San José Open Data Portal:
+```text
+models/MLP/mlp_model_epoch100.keras
+models/MLP/mlp_model_es.keras
 
-[https://data.sanjoseca.gov/](https://data.sanjoseca.gov/dataset/police-calls-for-service)
+models/LSTM/lstm_model_timestep_2.keras
+models/LSTM/lstm_model_timestep_4.keras
+models/LSTM/lstm_model_timestep_6.keras
+models/LSTM/lstm_model_timestep_12.keras
+models/LSTM/lstm_model_timestep_24.keras
+models/LSTM/lstm_model_timestep_48.keras
+```
 
-Rename the files exactly as follows:
+Training histories are also saved as CSV files.
+
+### Notebook 06 — Final Model Evaluation
+
+**File:** `notebooks/06_model_evaluation.ipynb`
+
+This notebook:
+
+- Loads saved traditional and neural network models.
+- Preserves the feature order used during training.
+- Aligns predictions to comparable test timestamps.
+- Accounts for the selected LSTM lookback.
+- Evaluates each model using held-out test data.
+- Computes MAE, MSE, RMSE, and R².
+- Creates model comparison and diagnostic visualizations.
+
+The documented selected LSTM lookback is:
+
+```python
+BEST_TIME_STEP = 6
+```
+
+The evaluation includes both baseline models for comparison.
+
+Final results are stored in `Results_Graphs/`.
+
+## Training, Validation, and Test Splits
+
+The project uses chronological data splits to preserve temporal order.
+
+| Split | Observations | Period |
+|---|---:|---|
+| Training | 14,830 | Jan. 8, 2024 – Sep. 30, 2025 |
+| Validation | 3,624 | Oct. 1, 2025 – Feb. 28, 2026 |
+| Testing | 2,782 | Mar. 1, 2026 – Jul. 8, 2026 |
+| **Total** | **21,236** | |
+
+### Evaluation Procedure
+
+- **Training set:** Fit model parameters.
+- **Validation set:** Select hyperparameters and LSTM lookback.
+- **Test set:** Evaluate final model performance.
+
+The test set should not be used to select model configurations.
+
+This separation helps reduce optimistic performance estimates caused by test-set leakage.
+
+## Model Evaluation Results
+
+The project evaluates predictive accuracy using:
+
+**Mean Absolute Error (MAE)**
+
+Measures the average absolute difference between predicted and actual call counts.
+
+**Root Mean Squared Error (RMSE)**
+
+Measures prediction error while giving greater weight to larger errors.
+
+**R² Score**
+
+Measures the proportion of variability in call volume explained by the model relative to a mean-prediction reference.
+
+### Best Reported Model: Tuned Random Forest
+
+| Metric | Held-Out Test Result |
+|---|---:|
+| MAE | 5.616 |
+| RMSE | 8.142 |
+| R² | 0.711 |
+
+The tuned random forest achieved the strongest reported performance in the project's model comparison.
+
+These are the documented results of this experiment, not a guarantee of performance on future operational data.
+
+### Model Comparison Files
+
+The repository includes:
+
+- [Master model comparison data](Results_Graphs/master_model_comparison.csv)
+- [Forecast comparison visualization](Results_Graphs/master_model_forecast_comparison.png)
+- [Random Forest feature importance](Results_Graphs/rf_feature_importance.png)
+- [LSTM lookback comparison](Results_Graphs/lstm_lookback_comparison.png)
+
+## Selected Visualizations
+
+### Model Forecast Comparison
+
+The following figure compares model predictions with observed police call volume.
+
+![Master Model Forecast Comparison](Results_Graphs/master_model_forecast_comparison.png)
+
+### Random Forest Feature Importance
+
+This visualization shows the relative importance of features in the fitted random forest model.
+
+![Random Forest Feature Importance](Results_Graphs/rf_feature_importance.png)
+
+Feature importance describes the model's predictive behavior and should not be interpreted as causal evidence.
+
+### LSTM Lookback Comparison
+
+This figure summarizes results for the evaluated LSTM lookback windows.
+
+![LSTM Lookback Comparison](Results_Graphs/lstm_lookback_comparison.png)
+
+### Hourly Police Call Patterns
+
+This visualization illustrates average police call volume by hour of day.
+
+![Average Calls by Hour](figures/average_calls_by_hour.png)
+
+## How to Run the Project
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/AfrinHossai/Police-Call-Forecasting.git
+```
+
+### 2. Navigate to the Repository
+
+```bash
+cd Police-Call-Forecasting
+```
+
+### 3. Install Required Packages
+
+For a compatible Python environment, install the required packages using:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+The notebooks were developed in Google Colab. The environment may require additional configuration depending on package availability and runtime versions.
+
+### 4. Download Raw Data
+
+Download the Police Calls for Service files from:
+
+[City of San José Open Data Portal](https://data.sanjoseca.gov/dataset/police-calls-for-service)
+
+Rename the files:
 
 ```text
 police_calls_2024.csv
@@ -73,24 +462,26 @@ police_calls_2025.csv
 police_calls_2026.csv
 ```
 
-The notebooks expect the files to use the original City dataset columns, including fields such as `OFFENSE_DATE`, `OFFENSE_TIME`, `PRIORITY`, and `CALL_TYPE`.
+The files must retain the source columns expected by the notebooks.
 
-## 2. Create the Google Drive Folder Structure
+### 5. Prepare Google Drive
 
-Create this folder in Google Drive:
+The notebooks use the following Google Drive project directory:
 
 ```text
 MyDrive/CS171_Police_Call_Project/
 ```
 
-Place the raw files and create the model folders as shown below:
+Create this structure:
 
 ```text
 CS171_Police_Call_Project/
+│
 ├── data_raw/
 │   ├── police_calls_2024.csv
 │   ├── police_calls_2025.csv
 │   └── police_calls_2026.csv
+│
 ├── data_processed/
 ├── figures/
 ├── results/
@@ -104,9 +495,11 @@ CS171_Police_Call_Project/
     └── LSTM/
 ```
 
-Notebook 04 currently saves some figures to a separate folder named `MyDrive/Results`. Create that folder as well, or change its `save_figure()` path to the project folder.
+These Google Drive folders are part of the original notebook workflow. Their names do not need to match the GitHub repository name.
 
-The following setup cell can create all required folders:
+Notebook 04 also uses `MyDrive/Results` for some figures, so that directory may be required.
+
+The following cell creates the required folders:
 
 ```python
 from pathlib import Path
@@ -133,300 +526,136 @@ for folder in required_folders:
 Path("/content/drive/MyDrive/Results").mkdir(parents=True, exist_ok=True)
 ```
 
-## 3. Open the Notebooks in Google Colab
+### 6. Open the Notebooks in Google Colab
 
-Open each notebook from the `notebooks/` folder. At the beginning of each notebook, mount Google Drive:
+Open the notebook files from the repository's `notebooks/` directory.
+
+Mount Google Drive when required:
 
 ```python
 from google.colab import drive
 drive.mount("/content/drive")
 ```
 
-Run the notebooks **in numerical order**. Later notebooks depend on files and models produced by earlier notebooks.
-
-## 4. Run the Complete Pipeline
-
-### Notebook 01 — Data Preparation
-
-Run:
+Run the notebooks in the following order:
 
 ```text
-notebooks/01_data_preparation.ipynb
+01_data_preparation.ipynb
+02_eda.ipynb
+03_preprocessing_and_split.ipynb
+04_baseline_and_tree_models.ipynb
+05_neural_networks.ipynb
+06_model_evaluation.ipynb
 ```
 
-This notebook:
+Later notebooks depend on processed data or saved models generated by earlier notebooks.
 
-- Loads and combines the 2024–2026 incident files.
-- Removes exact duplicate records.
-- Creates timestamps and sorts incidents chronologically.
-- Aggregates incidents into hourly call counts.
-- Creates the next-hour target.
-- Engineers calendar, lag, rolling-average, priority, and call-type features.
-- Creates chronological train, validation, and test labels.
-- Removes rows without complete historical features.
+### 7. Configure the Neural Network Runtime
 
-Expected outputs in `data_processed/`:
+For Notebook 05, a GPU runtime is recommended.
 
-```text
-model_ready_hourly.csv
-candidate_features.json
-final_split_audit.csv
-```
-
-Expected final split sizes:
-
-| Split | Rows | Prediction period |
-|---|---:|---|
-| Train | 14,830 | Jan. 8, 2024–Sep. 30, 2025 |
-| Validation | 3,624 | Oct. 1, 2025–Feb. 28, 2026 |
-| Test | 2,782 | Mar. 1, 2026–Jul. 8, 2026 |
-
-### Notebook 02 — Exploratory Data Analysis
-
-Run:
-
-```text
-notebooks/02_eda.ipynb
-```
-
-This notebook reads `model_ready_hourly.csv` and examines:
-
-- The target distribution.
-- Hour-of-day and day-of-week patterns.
-- Yearly and monthly patterns.
-- Priority and call-type distributions.
-- Correlations between historical features and the target.
-- High-volume and extreme-demand hours.
-- Distribution differences among the chronological splits.
-
-Figures are saved to:
-
-```text
-MyDrive/CS171_Police_Call_Project/figures/
-```
-
-### Notebook 03 — Preprocessing and Split Export
-
-Run:
-
-```text
-notebooks/03_preprocessing_and_split.ipynb
-```
-
-This notebook:
-
-- Uses the fixed chronological splits from Notebook 01.
-- Separates the 48 predictors from `NEXT_HOUR_CALLS`.
-- Fits median imputation and `StandardScaler` using only the training set.
-- Applies the fitted preprocessing pipeline to validation and test data.
-- Saves scaled and unscaled versions of each split.
-
-Important outputs in `data_processed/`:
-
-```text
-train_scaled.csv
-validation_scaled.csv
-test_scaled.csv
-train_unscaled.csv
-validation_unscaled.csv
-test_unscaled.csv
-numerical_preprocessor.joblib
-preprocessing_metadata.json
-candidate_features.json
-```
-
-Additional split-audit files are saved in:
-
-```text
-MyDrive/CS171_Police_Call_Project/results/
-```
-
-### Notebook 04 — Baselines and Traditional Models
-
-Run:
-
-```text
-notebooks/04_baseline_and_tree_models.ipynb
-```
-
-This notebook trains and validates:
-
-- Mean baseline.
-- Persistence baseline.
-- Linear regression.
-- Elastic Net.
-- Decision tree regressor.
-- Random forest regressor.
-
-Hyperparameters are selected using the validation set. The fitted models are saved as:
-
-```text
-models/LinearRegression/linear_regression.joblib
-models/ElasticNet (Regularization)/elastic_net.joblib
-models/DecisionTree/decision_tree_.joblib
-models/RandomForest/random_forest.joblib
-```
-
-Do not use the test set to tune these models.
-Notebook runtime: Approximately 5-6 minutes. Restart kernel if notebook is frozen. 
-
-### Notebook 05 — Neural Networks
-
-Run:
-
-```text
-notebooks/05_neural_networks.ipynb
-```
-
-For faster training, select a GPU in Colab:
+In Google Colab:
 
 ```text
 Runtime → Change runtime type → T4 GPU
 ```
 
-This notebook trains:
+A GPU can improve training speed, depending on runtime availability and workload characteristics.
 
-- An MLP for 100 epochs.
-- An MLP with early stopping.
-- LSTM models with lookback windows of 2, 4, 6, 12, 24, and 48 hours.
+### 8. Check LSTM Evaluation Settings
 
-The LSTM lookback must be selected using validation performance only. Based on the latest validation results, use:
+Before running Notebook 06, confirm that the selected LSTM lookback matches the validation-selected model.
 
-```python
-best_ts = 6
-```
-
-The notebook saves:
-
-```text
-models/MLP/mlp_model_epoch100.keras
-models/MLP/mlp_model_es.keras
-models/MLP/mlp_history_100.csv
-models/MLP/mlp_history_es.csv
-models/LSTM/lstm_model_timestep_2.keras
-models/LSTM/lstm_model_timestep_4.keras
-models/LSTM/lstm_model_timestep_6.keras
-models/LSTM/lstm_model_timestep_12.keras
-models/LSTM/lstm_model_timestep_24.keras
-models/LSTM/lstm_model_timestep_48.keras
-models/LSTM/lstm_history_timestep_*.csv
-```
-
-### Notebook 06 — Final Model Evaluation
-
-Run:
-
-```text
-notebooks/06_model_evaluation.ipynb
-```
-
-Before running, confirm that the selected LSTM lookback matches the validation-selected value:
+For the documented experiment:
 
 ```python
 BEST_TIME_STEP = 6
 ```
 
-Load the exact feature list to preserve the feature order used during training:
+Also ensure the ordered feature list from `candidate_features.json` is used during evaluation.
 
-```python
-import json
+**Important:** The project relies on saved files and Google Drive directories. Cloning the repository alone does not automatically reproduce the entire pipeline.
 
-with open(
-    os.path.join(processed_data_dir, "candidate_features.json"),
-    "r"
-) as file:
-    feature_names = json.load(file)
+## Reproducibility Notes
 
-X_test = test_scaled_df[feature_names]
-y_test = test_scaled_df["NEXT_HOUR_CALLS"]
-```
+The project uses a fixed chronological data split to support consistent model comparisons.
 
-The final comparison should include both baselines:
+Numerical preprocessing is fitted using training data before being applied to validation and test sets.
 
-```python
-training_mean = train_scaled_df["NEXT_HOUR_CALLS"].mean()
-mean_preds = np.full(len(y_test_trimmed), training_mean)
-```
+The notebooks use random seed 42 and deterministic TensorFlow settings where possible.
 
-Add the mean baseline to the model comparison table:
+However, exact results may vary because of:
 
-```python
-("Mean Baseline", *compute_metrics(y_test_trimmed, mean_preds))
-```
+- Package versions
+- TensorFlow or Keras versions
+- Hardware and runtime differences
+- Source dataset updates
+- Changes to preprocessing or model configuration
+- Nondeterministic operations
 
-Notebook 06 then:
-
-- Loads all saved traditional and neural-network models.
-- Aligns predictions using the six-hour LSTM lookback.
-- Evaluates every model on the same held-out test timestamps.
-- Reports MAE, MSE, RMSE, and R².
-- Produces forecast, residual, feature-importance, and LSTM-validation figures.
-
-Final figures are saved to:
-
-```text
-MyDrive/CS171_Police_Call_Project/Results_Graphs/
-```
-
-## 5. Correct Model-Selection Procedure
-
-Use the datasets for the following purposes:
-
-- **Training set:** Fit model parameters.
-- **Validation set:** Select hyperparameters and the LSTM lookback window.
-- **Test set:** Evaluate the already-selected models once.
-
-Do not select the LSTM lookback because it performs best on the test set. This would leak test information into model selection and make the final evaluation less reliable.
-
-## Expected Headline Result
-
-In the current held-out test evaluation, the tuned random forest achieved the strongest performance:
-
-| Metric | Result |
-|---|---:|
-| MAE | 5.616 calls |
-| RMSE | 8.142 calls |
-| R² | 0.711 |
-
-These values may change slightly if package versions, saved models, notebook code, or source data are changed.
+The repository includes saved models, figures, and evaluation artifacts, but complete reproducibility has not been independently verified in a clean environment.
 
 ## Troubleshooting
 
-### `FileNotFoundError`
+### FileNotFoundError
 
-Confirm that:
+Check that:
 
 - Google Drive is mounted.
-- The folder is named exactly `CS171_Police_Call_Project`.
-- Raw CSV files use the exact required filenames.
-- All previous notebooks were run successfully.
-- Model subfolders exist before Notebook 04 or 05 attempts to save files.
+- The project directory is named `CS171_Police_Call_Project`.
+- Raw CSV filenames match the expected names.
+- Required model and output directories exist.
+- Previous notebooks have produced the expected files.
 
-### `ModuleNotFoundError: great_tables`
+### ModuleNotFoundError: great_tables
 
-Run:
+In Google Colab, run:
 
 ```python
 !pip install -q great-tables
 ```
 
-Then restart the Colab runtime if necessary.
+Restart the runtime if necessary.
 
-### Feature-name or feature-count error
+### Feature-Name or Feature-Count Errors
 
-Load `candidate_features.json` and select columns using that exact ordered list rather than dropping columns manually.
+Use the ordered feature list stored in `candidate_features.json`.
 
-### LSTM input-shape error
+Avoid manually selecting an incompatible set or order of predictors during model evaluation.
+
+### LSTM Input-Shape Errors
 
 Confirm that:
 
-- `BEST_TIME_STEP` matches the saved LSTM filename.
-- Test sequences were created with the same lookback.
-- All non-LSTM predictions and targets were trimmed by the same lookback length.
+- The selected lookback matches the saved model.
+- Input sequences use the expected number of time steps.
+- Predictions and target values are aligned to the same timestamps.
 
-### Different results after rerunning
+### Different Results After Rerunning
 
-TensorFlow and package-version differences may cause small changes. The notebooks use seed 42 and deterministic TensorFlow settings where possible, but exact reproducibility can still depend on the runtime and hardware.
+Results can change when package versions, datasets, saved models, or runtime configurations differ.
+
+## Project Limitations
+
+- The dataset covers a specific geographic area and historical period.
+- Forecasting accuracy may decrease under changing demand patterns.
+- High-volume or unusual incidents may be more difficult to predict accurately.
+- Model performance may depend on feature construction and selected hyperparameters.
+- Some historical features may require careful alignment for real-time forecasting.
+- The project does not establish operational reliability for staffing or deployment decisions.
+- The forecasting pipeline has not been independently validated for production use.
+
+## Future Improvements
+
+- Evaluate the models on additional future time periods.
+- Investigate performance under seasonal and distribution shifts.
+- Explore additional temporal and weather-related features.
+- Compare against dedicated statistical time-series forecasting methods.
+- Add automated testing for data processing and model evaluation.
+- Implement rolling-origin or walk-forward validation.
+- Improve reproducibility through pinned dependency versions.
+- Develop a simple interactive forecasting dashboard.
+- Investigate prediction intervals and uncertainty estimates.
 
 ## Team
 
@@ -434,10 +663,18 @@ TensorFlow and package-version differences may cause small changes. The notebook
 - Anushka Chandrashekar
 - Sampiya Bhusal
 
-## Data Source
+## Data Source and Acknowledgment
 
-City of San José, **Police Calls for Service**, City of San José Open Data Portal.
+**City of San José — Police Calls for Service**
+
+Data source: [City of San José Open Data Portal](https://data.sanjoseca.gov/dataset/police-calls-for-service)
+
+This project was completed as part of CS 171 coursework at San José State University.
 
 ## Disclaimer
 
-This project is for academic purposes. The forecasts estimate short-term citywide call demand and should not be treated as exact staffing, deployment, or public-safety decisions.
+This project is intended for academic research and educational purposes.
+
+The forecasts estimate short-term citywide police call demand and should not be treated as exact staffing, deployment, or public-safety decisions.
+
+The predictive models are not intended for identifying individuals, making enforcement decisions, or replacing professional operational judgment.
